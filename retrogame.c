@@ -78,6 +78,7 @@ POSSIBILITY OF SUCH DAMAGE.
 // and have unused GPIO pins, set the corresponding key value to GND to
 // create a spare ground point.
 
+#define KEY_INT_SPECIAL 1337
 #define GND -1
 struct {
 	int pin;
@@ -87,7 +88,7 @@ struct {
 	{ 25,      KEY_LEFT     },
 	{  9,      KEY_RIGHT    },
 	{ 10,      KEY_UP       },
-	{ 17,      KEY_DOWN     },
+	{ 17,      KEY_INT_SPECIAL     },
 	{ 23,      KEY_LEFTCTRL },
 	{  4,      KEY_LEFTALT  }
 };
@@ -102,7 +103,7 @@ char
    running      = 1;                 // Signal handler will set to 0 (exit)
 volatile unsigned int
   *gpio;                             // GPIO register table
-
+int int_idx = 0;
 
 // Some utility functions ------------------------------------------------
 
@@ -252,6 +253,11 @@ int main(int argc, char *argv[]) {
 			extstate[j] = intstate[j];
 			p[j].events  = POLLPRI; // Set up poll() events
 			p[j].revents = 0;
+
+			if (io[i].key == KEY_INT_SPECIAL) {
+				printf("%d marks interrupt gpio", j);
+				int_idx = j;
+			}
 			j++;
 		}
 	} // 'j' is now count of non-GND items in io[] table
@@ -266,7 +272,7 @@ int main(int argc, char *argv[]) {
 	if(ioctl(fd, UI_SET_EVBIT, EV_KEY) < 0)
 		err("Can't SET_EVBIT");
 	for(i=0; i<IOLEN; i++) {
-		if(io[i].key != GND) {
+		if(io[i].key != GND && io[i].key != KEY_INT_SPECIAL) {
 			if(ioctl(fd, UI_SET_KEYBIT, io[i].key) < 0)
 				err("Can't SET_KEYBIT");
 		}
@@ -324,12 +330,16 @@ int main(int argc, char *argv[]) {
 					// previously-issued value.  Send
 					// keystrokes only for changed states.
 					if(intstate[j] != extstate[j]) {
-						extstate[j] = intstate[j];
-						keyEv.code  = io[i].key;
-						keyEv.value = intstate[j];
-						write(fd, &keyEv,
-						  sizeof(keyEv));
-						c = 1; // Follow w/SYN event
+						if (j == int_idx) {
+							printf("Got interrupt event!");
+						} else {
+							extstate[j] = intstate[j];
+							keyEv.code  = io[i].key;
+							keyEv.value = intstate[j];
+							write(fd, &keyEv,
+						  		sizeof(keyEv));
+							c = 1; // Follow w/SYN event
+						}
 					}
 					j++;
 				}
