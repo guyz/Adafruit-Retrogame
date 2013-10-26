@@ -325,6 +325,9 @@ int main(int argc, char *argv[]) {
 			// remapping table or a duplicate key[] list.
 			for(c=i=j=0; i<IOLEN; i++) {
 				if(io[i].key != GND) {
+					if (io[i].key == KEY_INT_SPECIAL) {
+						printf("i=%d, j=%d, intstate[j]=%d, extstate[j]=%d\n", i, j, intstate[j], extstate[j]);
+					}
 					// Compare internal state against
 					// previously-issued value.  Send
 					// keystrokes only for changed states.
