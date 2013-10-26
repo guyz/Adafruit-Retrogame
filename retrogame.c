@@ -220,6 +220,7 @@ int main(int argc, char *argv[]) {
 	if((fd = open(buf, O_WRONLY)) < 0) // Open Sysfs export file
 		err("Can't open GPIO export file");
 	for(i=j=0; i<IOLEN; i++) { // For each pin of interest...
+		printf("Configuring pin %d", i);
 		sprintf(buf, "%d", io[i].pin);
 		write(fd, buf, strlen(buf));             // Export pin
 		pinConfig(io[i].pin, "active_low", "0"); // Don't invert
