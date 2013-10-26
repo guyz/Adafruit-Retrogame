@@ -89,7 +89,7 @@ struct {
 	{ 10,      KEY_UP       },
 	{ 17,      KEY_DOWN     },
 	{ 23,      KEY_LEFTCTRL },
-	{  7,      KEY_LEFTALT  }
+	{  4,      KEY_LEFTALT  }
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
 
