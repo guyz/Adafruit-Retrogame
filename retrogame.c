@@ -88,9 +88,7 @@ struct {
 	{ 25,      KEY_LEFT     },
 	{  9,      KEY_RIGHT    },
 	{ 10,      KEY_UP       },
-	{ 17,      KEY_INT_SPECIAL     },
-	{ 23,      KEY_LEFTCTRL },
-	{  4,      KEY_LEFTALT  }
+	{ 17,      KEY_INT_SPECIAL     }
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
 
@@ -178,7 +176,7 @@ int main(int argc, char *argv[]) {
 	struct uinput_user_dev uidev;           // uinput device
 	struct input_event     keyEv, synEv;    // uinput events
 	struct pollfd          p[IOLEN];        // GPIO file descriptors
-
+	printf("sdfds\n");
 	progName = argv[0];             // For error reporting
 	signal(SIGINT , signalHandler); // Trap basic signals (exit cleanly)
 	signal(SIGKILL, signalHandler);
