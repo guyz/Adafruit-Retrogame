@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 	struct uinput_user_dev uidev;           // uinput device
 	struct input_event     keyEv, synEv;    // uinput events
 	struct pollfd          p[IOLEN];        // GPIO file descriptors
-	printf("sdfds\n");
+	
 	progName = argv[0];             // For error reporting
 	signal(SIGINT , signalHandler); // Trap basic signals (exit cleanly)
 	signal(SIGKILL, signalHandler);
