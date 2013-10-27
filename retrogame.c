@@ -78,7 +78,6 @@ POSSIBILITY OF SUCH DAMAGE.
 // and have unused GPIO pins, set the corresponding key value to GND to
 // create a spare ground point.
 
-#define KEY_INT_SPECIAL 1337
 #define GND -1
 struct {
 	int pin;
@@ -103,7 +102,7 @@ char
    running      = 1;                 // Signal handler will set to 0 (exit)
 volatile unsigned int
   *gpio;                             // GPIO register table
-int int_idx = 0;
+
 
 // Some utility functions ------------------------------------------------
 
@@ -178,7 +177,7 @@ int main(int argc, char *argv[]) {
 	struct uinput_user_dev uidev;           // uinput device
 	struct input_event     keyEv, synEv;    // uinput events
 	struct pollfd          p[IOLEN];        // GPIO file descriptors
-	
+
 	progName = argv[0];             // For error reporting
 	signal(SIGINT , signalHandler); // Trap basic signals (exit cleanly)
 	signal(SIGKILL, signalHandler);
@@ -222,7 +221,6 @@ int main(int argc, char *argv[]) {
 	if((fd = open(buf, O_WRONLY)) < 0) // Open Sysfs export file
 		err("Can't open GPIO export file");
 	for(i=j=0; i<IOLEN; i++) { // For each pin of interest...
-		printf("Configuring pin %d", i);
 		sprintf(buf, "%d", io[i].pin);
 		write(fd, buf, strlen(buf));             // Export pin
 		pinConfig(io[i].pin, "active_low", "0"); // Don't invert
@@ -254,11 +252,6 @@ int main(int argc, char *argv[]) {
 			extstate[j] = intstate[j];
 			p[j].events  = POLLPRI; // Set up poll() events
 			p[j].revents = 0;
-
-			if (io[i].key == KEY_INT_SPECIAL) {
-				printf("%d marks interrupt gpio", j);
-				int_idx = j;
-			}
 			j++;
 		}
 	} // 'j' is now count of non-GND items in io[] table
@@ -273,7 +266,7 @@ int main(int argc, char *argv[]) {
 	if(ioctl(fd, UI_SET_EVBIT, EV_KEY) < 0)
 		err("Can't SET_EVBIT");
 	for(i=0; i<IOLEN; i++) {
-		if(io[i].key != GND && io[i].key != KEY_INT_SPECIAL) {
+		if(io[i].key != GND) {
 			if(ioctl(fd, UI_SET_KEYBIT, io[i].key) < 0)
 				err("Can't SET_KEYBIT");
 		}
@@ -327,23 +320,16 @@ int main(int argc, char *argv[]) {
 			// remapping table or a duplicate key[] list.
 			for(c=i=j=0; i<IOLEN; i++) {
 				if(io[i].key != GND) {
-					if (io[i].key == KEY_INT_SPECIAL) {
-						printf("i=%d, j=%d, intstate[j]=%d, extstate[j]=%d\n", i, j, intstate[j], extstate[j]);
-					}
 					// Compare internal state against
 					// previously-issued value.  Send
 					// keystrokes only for changed states.
 					if(intstate[j] != extstate[j]) {
-						if (j == int_idx) {
-							printf("Got interrupt event!");
-						} else {
-							extstate[j] = intstate[j];
-							keyEv.code  = io[i].key;
-							keyEv.value = intstate[j];
-							write(fd, &keyEv,
-						  		sizeof(keyEv));
-							c = 1; // Follow w/SYN event
-						}
+						extstate[j] = intstate[j];
+						keyEv.code  = io[i].key;
+						keyEv.value = intstate[j];
+						write(fd, &keyEv,
+						  sizeof(keyEv));
+						c = 1; // Follow w/SYN event
 					}
 					j++;
 				}
