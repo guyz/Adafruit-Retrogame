@@ -89,7 +89,13 @@ struct {
 	{ 24,      KEY_SPACE       },
 	{ 25,      KEY_LEFTSHIFT        },
 	{ 8,      KEY_Z       },
-	{ 7,      KEY_X       }
+	{ 7,      KEY_X       },
+	{ 4,      KEY_A       },
+	{ 21,      KEY_S       },
+	{ 22,      KEY_Q       },
+	{ 10,      KEY_W       },
+	{ 9,      KEY_T       }, // Requires manual config in Mame4All
+	{ 11,      KEY_Y       } // Requires manual config in Mame4All
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
 
