@@ -91,7 +91,7 @@ struct {
 	{ 8,      KEY_Z       },
 	{ 7,      KEY_X       },
 	{ 4,      KEY_A       },
-	{ 21,      KEY_S       },
+	{ 27,      KEY_S       },
 	{ 22,      KEY_Q       },
 	{ 10,      KEY_W       },
 	{ 9,      KEY_T       }, // Requires manual config in Mame4All
